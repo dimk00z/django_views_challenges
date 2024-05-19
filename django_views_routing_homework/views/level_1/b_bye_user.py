@@ -1,5 +1,7 @@
 from django.http import HttpResponse
 
+from django_views_routing_homework.services.user_getter import UserNameGetter
+
 """
 У нас есть вьюха bye_user_view, но она не привязана ни к какому пути.
 
@@ -10,5 +12,8 @@ from django.http import HttpResponse
 
 
 def bye_user_view(request):
-    bye_message = 'Bye, user'
+    "Bye view."
+    user_name = UserNameGetter(request)()
+
+    bye_message = f"Bye, {user_name}"
     return HttpResponse(bye_message)
