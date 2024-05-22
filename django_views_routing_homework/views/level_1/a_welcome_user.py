@@ -1,4 +1,6 @@
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
+
+from django_views_routing_homework.services.user_getter import UserNameGetter
 
 """
 У нас есть вьюха welcome_user_view, в которой должно формироваться приветствие, а формируется прощание.
@@ -9,6 +11,8 @@ from django.http import HttpResponse
 """
 
 
-def welcome_user_view(request):
-    welcome_message = 'Bye, user'
+def welcome_user_view(request: HttpRequest) -> HttpResponse:
+    "Welcome view."
+    user_name = UserNameGetter(request)()
+    welcome_message = f"Welcome, {user_name}"
     return HttpResponse(welcome_message)
