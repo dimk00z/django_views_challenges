@@ -1,5 +1,4 @@
-from django.http import HttpResponse
-
+from django.http import HttpRequest, HttpResponse
 
 """
 Вьюха greet_user_in_different_languages_view приветствует пользователя в зависимости от имени и языка в пути, если
@@ -14,14 +13,21 @@ from django.http import HttpResponse
 """
 
 
-def greet_user_in_different_languages_view(request, name: str, language: str):
+def _get_greetings_prefix(language: str) -> str:
+    match language:
+        case "ru":
+            return "Привет, "
+        case "en":
+            return "Hello, "
+        case _:
+            return "👋, "
+
+
+def greet_user_in_different_languages_view(
+    request: HttpRequest,
+    name: str,
+    language: str,
+) -> HttpResponse:
     titled_name = name.title()
-
-    if language == 'ru':
-        response_content = f'Привет, {titled_name}'
-    elif language == 'en':
-        response_content = f'Hello, {titled_name}'
-    else:
-        response_content = f'👋, {titled_name}'
-
-    return HttpResponse(response_content)
+    greetings_prefix = _get_greetings_prefix(language)
+    return HttpResponse(f"{greetings_prefix}{titled_name}")

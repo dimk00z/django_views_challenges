@@ -1,8 +1,11 @@
 import json
+from http import HTTPStatus
 
-from django.http import JsonResponse, HttpResponseNotAllowed
+from django.core.exceptions import BadRequest
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
 """
 В этой задаче у нас сразу две вьюхи.
@@ -22,28 +25,37 @@ process_authorization_view - обрабатывает заполненные д�
     5. На странице вы увидете сообщение об успехе или неудаче.
 """
 USERNAME_TO_PASSWORD_MAPPER = {
-    'john_doe': 'password123',
-    'sarah_connor': 'terminator2',
-    'admin': 'admin_pass',
-    'coder2021': 'qwerty',
-    'happy_user': '12345',
-    'l33t_h4ck3r': 'leetpassword',
-    'music_lover': 'beethoven',
-    'sports_fan': 'goal2023',
-    'travel_guru': 'wanderlust',
+    "john_doe": "password123",
+    "sarah_connor": "terminator2",
+    "admin": "admin_pass",
+    "coder2021": "qwerty",
+    "happy_user": "12345",
+    "l33t_h4ck3r": "leetpassword",
+    "music_lover": "beethoven",
+    "sports_fan": "goal2023",
+    "travel_guru": "wanderlust",
 }
 
 
+def check_auth(username: str, password: str) -> bool:
+    if username not in USERNAME_TO_PASSWORD_MAPPER:
+        return False
+    return USERNAME_TO_PASSWORD_MAPPER[username] == password
+
+
+@require_POST
 @csrf_exempt
-def process_authorization_view(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        # код писать тут
-    else:
-        return HttpResponseNotAllowed(permitted_methods=['POST'])
+def process_authorization_view(request: HttpRequest) -> JsonResponse:
+    data = json.loads(request.body)
+    username = data.get("username")
+    password = data.get("password")
+    if not any((username, password)):
+        raise BadRequest("username and password are required")
+    if not check_auth(username, password):
+        return JsonResponse(data={}, status=HTTPStatus.FORBIDDEN)
+    return JsonResponse(data={}, status=HTTPStatus.OK)
 
 
 # не обращайте внимания на эту вьюху, она нужна лишь для отрисовки страницы авторизации
-def authorization_view(request):
-    return render(request, 'authorization.html')
-
+def authorization_view(request: HttpRequest) -> HttpResponse:
+    return render(request, "authorization.html")

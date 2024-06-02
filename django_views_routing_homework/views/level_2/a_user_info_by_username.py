@@ -1,5 +1,4 @@
-from django.http import JsonResponse
-
+from django.http import HttpRequest, HttpResponse, JsonResponse
 
 """
 Вьюха get_user_info_by_username_view возвращает информацию о юзере по его юзернейму. Если айдишника нет - возвращает собщение об ошибке
@@ -12,14 +11,16 @@ from django.http import JsonResponse
        Подсказка тут https://docs.djangoproject.com/en/4.2/topics/http/urls/#path-converters
 """
 USERNAME_TO_USER_INFO_MAPPER = {
-    'red_dev': {'id': 1, 'age': 34},
-    'green_bear': {'id': '2', 'age': 43},
-    'monster': {'id': '3', 'age': 17},
+    "red_dev": {"id": 1, "age": 34},
+    "green_bear": {"id": "2", "age": 43},
+    "monster": {"id": "3", "age": 17},
 }
 
 
-def get_user_info_by_username_view(request, username: str):
+def get_user_info_by_username_view(
+    request: HttpRequest,
+    username: str,
+) -> HttpResponse:
     if username in USERNAME_TO_USER_INFO_MAPPER:
         return JsonResponse(data=USERNAME_TO_USER_INFO_MAPPER[username])
-    else:
-        return JsonResponse(data={'error': 'There is no user info'}, status=404)
+    return JsonResponse(data={"error": "There is no user info"}, status=404)

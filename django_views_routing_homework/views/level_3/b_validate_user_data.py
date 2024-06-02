@@ -18,8 +18,45 @@
 Когда будете писать код, не забывайте о читаемости, поддерживаемости и модульности.
 """
 
-from django.http import HttpResponse, HttpRequest
+import json
+from enum import StrEnum
+from http import HTTPStatus
+
+from django import forms
+from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.views.decorators.http import require_POST
 
 
+class RegisteredFrom(StrEnum):
+    WEBSITE = "website"
+    MOBILE_APP = "mobile_app"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class UserForm(forms.Form):
+    full_name = forms.CharField(min_length=5, max_length=256)
+    email = forms.EmailField()
+    registered_from = forms.ChoiceField(choices=RegisteredFrom.choices)
+    age = forms.IntegerField(
+        required=False,
+        min_value=0,
+        max_value=150,
+    )
+
+
+@require_POST
 def validate_user_data_view(request: HttpRequest) -> HttpResponse:
-    pass  # код писать тут
+    data = json.loads(request.body)
+    form = UserForm(data)
+    if not form.is_valid():
+        return JsonResponse(
+            data={"is_valid": False, "errors": form.errors},
+            status=HTTPStatus.BAD_REQUEST,
+        )
+    return JsonResponse(
+        data={"is_valid": True},
+        status=HTTPStatus.BAD_REQUEST,
+    )
