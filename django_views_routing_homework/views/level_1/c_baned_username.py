@@ -1,6 +1,5 @@
 from django.http import HttpRequest, HttpResponse
 
-from django_views_routing_homework.services.user_getter import UserNameGetter
 
 """
 В этой вьюхе мы хотим проверять забанен ли юзернэйм или нет.
